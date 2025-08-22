@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minglez AI Chatbot - C Programming Expert</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles and Variables */
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #121212;
+            --accent-color: #bb86fc;
+            --light-gray: #1e1e1e;
+            --dark-gray: #f0f0f0;
+            --success-color: #03dac6;
+            --error-color: #cf6679;
+            --user-msg-bg: #2d2d2d;
+            --ai-msg-bg: #252525;
+            --code-bg: #1a1a1a;
+            --border-radius: 8px;
+            --transition-speed: 0.3s;
+        }
+
+        .light-mode {
+            --primary-color: #000000;
+            --secondary-color: #ffffff;
+            --accent-color: #6200ee;
+            --light-gray: #f0f0f0;
+            --dark-gray: #2d2d2d;
+            --user-msg-bg: #e6e6e6;
+            --ai-msg-bg: #f5f5f5;
+            --code-bg: #f7f7f7;
+            --success-color: #10a37f;
+            --error-color: #ff5252;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Splash Screen Styles */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #121212, #2d2d2d);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .logo-subtitle {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            animation: loading 2.5s forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Auth Screen Styles */
+        #auth-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            z-index: 900;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .auth-header p {
+            color: var(--primary-color);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        .auth-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity var(--transition-speed);
+            color: var(--primary-color);
+        }
+
+        .auth-tab.active {
+            opacity: 1;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity var(--transition-speed);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-google {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: 1px solid var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--accent-color);
+            z-index: 1;
+        }
+
+        .divider span {
+            background-color: var(--secondary-color);
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+            color: var(--primary-color);
+        }
+
+        /* Main Chat UI Styles */
+        #chat-ui {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--accent-color);
+            background-color: var(--secondary-color);
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: background-color var(--transition-speed);
+        }
+
+        .icon-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            border-right: 1px solid var(--accent-color);
+            background-color: var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .new-chat-btn {
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid var(--accent-color);
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: background-color var(--transition-speed);
+        }
+
+        .new-chat-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .chat-item {
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-color);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .chat-item.active {
+            background-color: var(--light-gray);
+        }
+
+        .chat-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+
+        .chat-item:hover .chat-item-actions {
+            opacity: 1;
+        }
+
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            border-top-right-radius: 0;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: var(--ai-msg-bg);
+            border-top-left-radius: 0;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+            opacity: 0.7;
+            text-align: right;
+            color: var(--primary-color);
+        }
+
+        .message-content {
+            color: var(--primary-color);
+        }
+
+        .message-content pre {
+            background-color: var(--code-bg);
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            border: 1px solid var(--accent-color);
+        }
+
+        .message-content code {
+            font-family: 'Courier New', monospace;
+            color: var(--primary-color);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--ai-msg-bg);
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            border-top-left-radius: 0;
+            margin-bottom: 1rem;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.25rem;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--accent-color);
+            background-color: var(--secondary-color);
+        }
+
+        .suggestion-chips {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-chip {
+            padding: 0.5rem 1rem;
+            background-color: var(--light-gray);
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            color: var(--primary-color);
+            transition: opacity var(--transition-speed);
+        }
+
+        .suggestion-chip:hover {
+            opacity: 0.9;
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+        }
+
+        .input-box {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .send-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: opacity var(--transition-speed);
+            min-width: 50px;
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Practice Questions */
+        .practice-question {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .show-answer-btn {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity var(--transition-speed);
+        }
+
+        .show-answer-btn:hover {
+            opacity: 0.9;
+        }
+
+        .answer {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--code-bg);
+            border-radius: var(--border-radius);
+            color: var(--primary-color);
+            border: 1px solid var(--accent-color);
+        }
+
+        /* Settings Panel */
+        #settings-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-left: 1px solid var(--accent-color);
+            z-index: 800;
+            overflow-y: auto;
+            padding: 1.5rem;
+            transition: right var(--transition-speed);
+        }
+
+        #settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-header h2 {
+            color: var(--primary-color);
+        }
+
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .token-usage {
+            margin-bottom: 1.5rem;
+        }
+
+        .usage-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .progress-bar-usage {
+            height: 8px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-usage {
+            height: 100%;
+            background-color: var(--accent-color);
+            border-radius: 4px;
+            transition: width var(--transition-speed);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--secondary-color);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .setting-item span {
+            color: var(--primary-color);
+        }
+
+        .setting-item select {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: 1px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+        }
+
+        .logout-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-align: center;
+            margin-top: 2rem;
+            transition: opacity var(--transition-speed);
+        }
+
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                height: 100%;
+                z-index: 700;
+                transition: left var(--transition-speed);
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-container {
+                margin-left: 0;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            #settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .suggestion-chips {
+                flex-direction: column;
+            }
+
+            .suggestion-chip {
+                text-align: center;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .visible {
+            display: flex !important;
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="logo">Minglez</div>
+        <div class="logo-subtitle">Your C Programming Expert</div>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>Welcome to Minglez</h1>
+                <p>Your C Programming Expert</p>
+            </div>
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="divider"><span>Or</span></div>
+                <button type="button" class="btn btn-google">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+            </form>
+            <form id="signup-form" class="auth-form">
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+                <div class="divider"><span>Or</span></div>
+                <button type="button" class="btn btn-google">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Chat UI -->
+    <div id="chat-ui">
+        <div class="header">
+            <button class="icon-btn" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-title">Minglez C Programming Expert</div>
+            <div class="header-actions">
+                <button class="icon-btn" id="settings-toggle">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="icon-btn" id="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+        <div class="main-container">
+            <div class="sidebar">
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+                <div class="chat-history" id="chat-history">
+                    <!-- Chat history items will be added here dynamically -->
+                </div>
+            </div>
+            <div class="chat-content">
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be added here dynamically -->
+                </div>
+                <div class="typing-indicator" id="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="chat-input-container">
+                    <div class="suggestion-chips" id="suggestion-chips">
+                        <button class="suggestion-chip">C Syntax Rules</button>
+                        <button class="suggestion-chip">Data Types in C</button>
+                        <button class="suggestion-chip">Practice Questions</button>
+                        <button class="suggestion-chip">File Handling</button>
+                        <button class="suggestion-chip">Pointers in C</button>
+                        <button class="suggestion-chip">Functions in C</button>
+                    </div>
+                    <div class="input-box">
+                        <div class="input-actions">
+                            <button class="icon-btn" id="upload-btn">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="icon-btn" id="voice-input-btn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                        <textarea class="input-field" id="message-input" placeholder="Ask about C programming..." rows="1"></textarea>
+                        <button class="send-btn" id="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="icon-btn" id="close-settings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="settings-section">
+            <h3>Account</h3>
+            <div class="setting-item">
+                <span>Email</span>
+                <span id="user-email">user@example.com</span>
+            </div>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+        <div class="settings-section">
+            <h3>Token Usage</h3>
+            <div class="token-usage">
+                <div class="usage-info">
+                    <span>Daily Usage</span>
+                    <span id="token-usage">750 / 1500</span>
+                </div>
+                <div class="progress-bar-usage">
+                    <div class="progress-usage" style="width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="settings-section">
+            <h3>Appearance</h3>
+            <div class="setting-item">
+                <span>Dark Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <span>Font Size</span>
+                <select id="font-size-select">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+        </div>
+        <div class="settings-section">
+            <h3>AI Preferences</h3>
+            <div class="setting-item">
+                <span>AI Personality</span>
+                <select id="ai-personality-select">
+                    <option value="balanced">Balanced</option>
+                    <option value="formal">Formal</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="technical">Technical</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <span>Text-to-Speech</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="tts-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const splashScreen = document.getElementById('splash-screen');
+        const authScreen = document.getElementById('auth-screen');
+        const chatUI = document.getElementById('chat-ui');
+        const settingsPanel = document.getElementById('settings-panel');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const suggestionChips = document.querySelectorAll('.suggestion-chip');
+        const menuToggle = document.getElementById('menu-toggle');
+        const settingsToggle = document.getElementById('settings-toggle');
+        const closeSettings = document.getElementById('close-settings');
+        const themeToggle = document.getElementById('theme-toggle');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const chatHistory = document.getElementById('chat-history');
+        const logoutBtn = document.getElementById('logout-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const voiceInputBtn = document.getElementById('voice-input-btn');
+
+        // State variables
+        let currentChatId = null;
+        let chats = {};
+        let isDarkMode = true; // Default to dark mode
+        let isAIThinking = false;
+        let messageCount = 0;
+
+        // C Programming Knowledge Base
+        const cKnowledgeBase = {
+            syntax: {
+                title: "C Syntax Rules",
+                content: `C is a case-sensitive language. All C statements must end with a semicolon.
+
+*Basic Structure:*
+\\\`c
+#include <stdio.h>  // Preprocessor directive
+
+int main() {        // Main function
+    // Statements
+    return 0;       // Return statement
+}
+\\\`
+
+*Key Syntax Rules:*
+1. Every program must have a main() function
+2. Statements end with a semicolon (;)
+3. Code blocks are enclosed in curly braces {}
+4. Variables must be declared before use
+5. Header files are included with #include
+6. Comments use // for single-line or /* */ for multi-line`
+            },
+            dataTypes: {
+                title: "Data Types in C",
+                content: `C has several basic data types:
+
+*1. int* - Integer numbers (4 bytes)
+   Example: \int age = 25;\
+
+*2. float* - Floating-point numbers (4 bytes)
+   Example: \float price = 19.99;\
+
+*3. double* - Double precision floating-point (8 bytes)
+   Example: \double pi = 3.1415926535;\
+
+*4. char* - Single character (1 byte)
+   Example: \char grade = 'A';\
+
+*5. void* - Represents absence of type
+
+*Derived data types:*
+- Arrays: \int numbers[5];\
+- Pointers: \int *ptr;\
+- Structures: \struct Person { char name; int age; };\
+- Unions: \union Data { int i; float f; };\`
+            },
+            pointers: {
+                title: "Pointers in C",
+                content: `A pointer is a variable that stores the memory address of another variable.
+
+*Declaration:*
+\\\`c
+int *ptr;  // Pointer to an integer
+char *cptr; // Pointer to a character
+\\\`
+
+*Example:*
+\\\`c
+int var = 10;
+int *ptr = &var;  // ptr now holds the address of var
+
+printf("Value of var: %d\\n", var);     // Output: 10
+printf("Address of var: %p\\n", &var);  // Output: memory address
+printf("Value of ptr: %p\\n", ptr);     // Output: same memory address
+printf("Value at ptr: %d\\n", *ptr);    // Output: 10 (dereferencing)
+\\\`
+
+*Pointer Arithmetic:*
+- ptr++ increases the pointer to point to the next element
+- ptr-- decreases the pointer to point to the previous element
+- ptr + n points to the nth element from current position`
+            },
+            functions: {
+                title: "Functions in C",
+                content: `Functions are blocks of code that perform specific tasks.
+
+*Function Definition:*
+\\\`c
+return_type function_name(parameters) {
+    // function body
+    return value;
+}
+\\\`
+
+*Example:*
+\\\`c
+int add(int a, int b) {
+    return a + b;
+}
+\\\`
+
+*Function Declaration (Prototype):*
+\int add(int a, int b);\
+
+*Types of Functions:*
+1. *Library Functions:* printf(), scanf(), etc.
+2. *User-defined Functions:* Functions created by the programmer
+
+*Function Parameters:*
+- *Pass by value:* Changes to parameters aren't reflected outside
+- *Pass by reference:* Using pointers, changes are reflected outside`
+            },
+            fileHandling: {
+                title: "File Handling in C",
+                content: `C provides functions for file operations:
+
+*Opening a file:*
+\\\`c
+FILE *fptr;
+fptr = fopen("filename.txt", "mode");
+\\\`
+
+*Modes:*
+- "r": Read (file must exist)
+- "w": Write (creates new or overwrites)
+- "a": Append (creates new or appends)
+- "r+": Read and write
+- "w+": Write and read (overwrites)
+- "a+": Append and read (appends)
+
+*Example:*
+\\\`c
+#include <stdio.h>
+
+int main() {
+    FILE *fptr;
+    fptr = fopen("example.txt", "w");
+    
+    if(fptr == NULL) {
+        printf("Error opening file!");
+        return 1;
+    }
+    
+    fprintf(fptr, "Hello, World!");
+    fclose(fptr);
+    
+    return 0;
+}
+\\\``
+            }
+        };
+
+        // Practice Questions
+        const practiceQuestions = [
+            {
+                question: "Write a program to check if a number is prime.",
+                answer: `#include <stdio.h>
+
+int main() {
+    int n, i, flag = 0;
+    printf("Enter a positive integer: ");
+    scanf("%d", &n);
+
+    for (i = 2; i <= n/2; ++i) {
+        if (n % i == 0) {
+            flag = 1;
+            break;
+        }
+    }
+
+    if (n == 1) {
+        printf("1 is neither prime nor composite.");
+    } else {
+        if (flag == 0)
+            printf("%d is a prime number.", n);
+        else
+            printf("%d is not a prime number.", n);
+    }
+
+    return 0;
+}`
+            },
+            {
+                question: "Write a program to find the factorial of a number.",
+                answer: `#include <stdio.h>
+
+int main() {
+    int n, i;
+    unsigned long long fact = 1;
+    printf("Enter an integer: ");
+    scanf("%d", &n);
+
+    if (n < 0)
+        printf("Error! Factorial of a negative number doesn't exist.");
+    else {
+        for (i = 1; i <= n; ++i) {
+            fact *= i;
+        }
+        printf("Factorial of %d = %llu", n, fact);
+    }
+
+    return 0;
+}`
+            },
+            {
+                question: "Write a program to reverse a string.",
+                answer: `#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char str[100], temp;
+    int i, j = 0;
+    
+    printf("Enter a string: ");
+    fgets(str, sizeof(str), stdin);
+    
+    // Remove newline character if present
+    str[strcspn(str, "\\n")] = 0;
+    
+    i = 0;
+    j = strlen(str) - 1;
+    
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
+    
+    printf("Reverse of the string: %s", str);
+    return 0;
+}`
+            },
+            {
+                question: "Write a program to implement a simple calculator.",
+                answer: `#include <stdio.h>
+
+int main() {
+    char operator;
+    double first, second;
+    printf("Enter an operator (+, -, *, /): ");
+    scanf("%c", &operator);
+    printf("Enter two operands: ");
+    scanf("%lf %lf", &first, &second);
+
+    switch (operator) {
+    case '+':
+        printf("%.1lf + %.1lf = %.1lf", first, second, first + second);
+        break;
+    case '-':
+        printf("%.1lf - %.1lf = %.1lf", first, second, first - second);
+        break;
+    case '*':
+        printf("%.1lf * %.1lf = %.1lf", first, second, first * second);
+        break;
+    case '/':
+        if (second != 0.0)
+            printf("%.1lf / %.1lf = %.1lf", first, second, first / second);
+        else
+            printf("Error! Division by zero.");
+        break;
+    default:
+        printf("Error! operator is not correct");
+    }
+
+    return 0;
+}`
+            },
+            {
+                question: "Write a program to find the largest element in an array.",
+                answer: `#include <stdio.h>
+
+int main() {
+    int n, i;
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+    
+    int arr[n];
+    printf("Enter %d elements: ", n);
+    for (i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+    
+    int max = arr[0];
+    for (i = 1; i < n; i++) {
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+    }
+    
+    printf("Largest element: %d", max);
+    return 0;
+}`
+            }
+        ];
+
+        // Initialize the application
+        function init() {
+            // Show splash screen first
+            setTimeout(() => {
+                splashScreen.classList.add('hidden');
+                authScreen.classList.add('visible');
+                
+                // Check if user was previously logged in (for demo purposes)
+                const isLoggedIn = localStorage.getItem('minglezLoggedIn');
+                if (isLoggedIn) {
+                    showChatUI();
+                }
+            }, 2500);
+
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load any saved chats from localStorage
+            loadChats();
+            
+            // Load theme preference
+            loadTheme();
+        }
+
+        // Set up all event listeners
+        function setupEventListeners() {
+            // Auth tabs
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.getAttribute('data-tab');
+                    switchAuthTab(tabName);
+                });
+            });
+
+            // Auth forms
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleLogin();
+            });
+
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleSignup();
+            });
+
+            // Message input
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            messageInput.addEventListener('input', () => {
+                // Auto-resize textarea
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
+                
+                // Enable/disable send button
+                sendBtn.disabled = !messageInput.value.trim() || isAIThinking;
+            });
+
+            // Send button
+            sendBtn.addEventListener('click', sendMessage);
+
+            // Suggestion chips
+            suggestionChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    messageInput.value = chip.textContent;
+                    sendMessage();
+                });
+            });
+
+            // Settings toggle
+            settingsToggle.addEventListener('click', toggleSettings);
+            closeSettings.addEventListener('click', toggleSettings);
+
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+            darkModeToggle.addEventListener('change', toggleTheme);
+
+            // Menu toggle (for mobile)
+            menuToggle.addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.toggle('open');
+            });
+
+            // New chat
+            newChatBtn.addEventListener('click', startNewChat);
+
+            // Logout
+            logoutBtn.addEventListener('click', handleLogout);
+
+            // Upload button (placeholder)
+            uploadBtn.addEventListener('click', () => {
+                alert('File upload feature coming soon!');
+            });
+
+            // Voice input button (placeholder)
+            voiceInputBtn.addEventListener('click', () => {
+                alert('Voice input feature coming soon!');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                const sidebar = document.querySelector('.sidebar');
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target) &&
+                    sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+
+            // Close settings panel when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!settingsPanel.contains(e.target) && 
+                    !settingsToggle.contains(e.target) &&
+                    settingsPanel.classList.contains('open')) {
+                    settingsPanel.classList.remove('open');
+                }
+            });
+        }
+
+        // Switch auth tabs
+        function switchAuthTab(tabName) {
+            authTabs.forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
+            });
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(${tabName}-form).classList.add('active');
+        }
+
+        // Handle login
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email && password) {
+                // Simple validation for demo
+                localStorage.setItem('minglezLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                showChatUI();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        // Handle signup
+        function handleSignup() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (!email || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                localStorage.setItem('minglezLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                showChatUI();
+            } else {
+                alert("Passwords do not match!");
+            }
+        }
+
+        // Show chat UI
+        function showChatUI() {
+            authScreen.classList.remove('visible');
+            chatUI.style.display = 'flex';
+            document.getElementById('user-email').textContent = localStorage.getItem('userEmail') || 'user@example.com';
+            
+            // Start a welcome chat if no chats exist
+            if (Object.keys(chats).length === 0) {
+                startNewChat();
+                addMessage("Welcome to Minglez! I'm your C Programming Expert. How can I help you today?", false);
+            }
+        }
+
+        // Logout
+        function handleLogout() {
+            localStorage.removeItem('minglezLoggedIn');
+            localStorage.removeItem('userEmail');
+            chatUI.style.display = 'none';
+            authScreen.classList.add('visible');
+            
+            // Clear current session data
+            currentChatId = null;
+            chats = {};
+            chatMessages.innerHTML = '';
+            renderChatHistory();
+        }
+
+        // Toggle settings panel
+        function toggleSettings() {
+            settingsPanel.classList.toggle('open');
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode', !isDarkMode);
+            
+            // Update theme toggle icons
+            const icon = themeToggle.querySelector('i');
+            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            
+            // Update dark mode toggle
+            darkModeToggle.checked = isDarkMode;
+            
+            // Save theme preference
+            localStorage.setItem('minglezDarkMode', isDarkMode);
+        }
+
+        // Load theme preference
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('minglezDarkMode');
+            if (savedTheme !== null) {
+                isDarkMode = savedTheme === 'true';
+                document.body.classList.toggle('light-mode', !isDarkMode);
+                darkModeToggle.checked = isDarkMode;
+                const icon = themeToggle.querySelector('i');
+                icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
+
+        // Start a new chat
+        function startNewChat() {
+            currentChatId = Date.now();
+            chats[currentChatId] = [];
+            renderChatHistory();
+            chatMessages.innerHTML = "";
+            
+            // Hide suggestion chips after first message
+            if (messageCount > 0) {
+                document.getElementById('suggestion-chips').style.display = 'none';
+            }
+        }
+
+        // Load chats from localStorage
+        function loadChats() {
+            const savedChats = JSON.parse(localStorage.getItem('minglezChats')) || {};
+            chats = savedChats;
+            
+            // Load the most recent chat if exists
+            const chatIds = Object.keys(chats);
+            if (chatIds.length > 0) {
+                currentChatId = chatIds[chatIds.length - 1];
+                loadChat(currentChatId);
+            }
+            
+            renderChatHistory();
+        }
+
+        // Save chats to localStorage
+        function saveChats() {
+            localStorage.setItem('minglezChats', JSON.stringify(chats));
+        }
+
+        // Render chat history
+        function renderChatHistory() {
+            chatHistory.innerHTML = "";
+            Object.keys(chats).reverse().forEach(id => {
+                const chat = chats[id];
+                const chatItem = document.createElement('div');
+                chatItem.classList.add('chat-item');
+                if (id == currentChatId) chatItem.classList.add('active');
+                
+                // Get the first user message as chat title
+                const firstUserMsg = chat.find(msg => msg.isUser);
+                const title = firstUserMsg ? 
+                    (firstUserMsg.text.length > 30 ? 
+                     firstUserMsg.text.substring(0, 30) + '...' : 
+                     firstUserMsg.text) : 
+                    Chat ${new Date(parseInt(id)).toLocaleDateString()};
+                
+                chatItem.innerHTML = `
+                    <span>${title}</span>
+                    <div class="chat-item-actions">
+                        <button class="icon-btn" onclick="deleteChat('${id}')" title="Delete chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                chatItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.chat-item-actions')) {
+                        loadChat(id);
+                    }
+                });
+                
+                chatHistory.appendChild(chatItem);
+            });
+        }
+
+        // Load a specific chat
+        function loadChat(id) {
+            currentChatId = id;
+            chatMessages.innerHTML = "";
+            
+            if (chats[id]) {
+                chats[id].forEach(msg => {
+                    addMessage(msg.text, msg.isUser, new Date(msg.timestamp), false);
+                });
+            }
+            
+            renderChatHistory();
+        }
+
+        // Delete a chat
+        function deleteChat(id) {
+            if (confirm('Are you sure you want to delete this chat?')) {
+                delete chats[id];
+                saveChats();
+                
+                if (currentChatId === id) {
+                    const remainingChats = Object.keys(chats);
+                    if (remainingChats.length > 0) {
+                        loadChat(remainingChats[remainingChats.length - 1]);
+                    } else {
+                        currentChatId = null;
+                        chatMessages.innerHTML = '';
+                    }
+                }
+                
+                renderChatHistory();
+            }
+        }
+
+        // Send message
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || isAIThinking) return;
+            
+            if (!currentChatId) startNewChat();
+            
+            addMessage(text, true);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            messageCount++;
+            
+            // Hide suggestion chips after first message
+            if (messageCount === 1) {
+                document.getElementById('suggestion-chips').style.display = 'none';
+            }
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            isAIThinking = true;
+            sendBtn.disabled = true;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const response = generateAIResponse(text);
+                addMessage(response, false);
+                typingIndicator.style.display = 'none';
+                isAIThinking = false;
+                sendBtn.disabled = false;
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // Add message to chat
+        function addMessage(text, isUser, timestamp = new Date(), shouldSave = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', isUser ? 'user-message' : 'ai-message');
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.innerHTML = formatMessage(text);
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.classList.add('message-time');
+            timeDiv.textContent = timestamp.toLocaleTimeString();
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Save to current chat
+            if (shouldSave) {
+                chats[currentChatId] = chats[currentChatId] || [];
+                chats[currentChatId].push({ text, isUser, timestamp: timestamp.toISOString() });
+                saveChats();
+                renderChatHistory();
+            }
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Format message content (handle code blocks, etc.)
+        function formatMessage(text) {
+            // Convert code blocks
+            text = text.replace(/``````/g, '<pre><code>$2</code></pre>');
+            
+            // Convert inline code
+            text = text.replace(/([^]+)`/g, '<code>$1</code>');
+            
+            // Convert bold text
+            text = text.replace(/\\([^]+)\\*/g, '<strong>$1</strong>');
+            
+            // Convert line breaks
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+
+        // Generate AI response based on user input
+        function generateAIResponse(userInput) {
+            const input = userInput.toLowerCase();
+            
+            // Check for specific topics
+            if (input.includes('syntax') || input.includes('rules')) {
+                return cKnowledgeBase.syntax.content;
+            } else if (input.includes('data type') || input.includes('int') || input.includes('float') || input.includes('char')) {
+                return cKnowledgeBase.dataTypes.content;
+            } else if (input.includes('pointer')) {
+                return cKnowledgeBase.pointers.content;
+            } else if (input.includes('function')) {
+                return cKnowledgeBase.functions.content;
+            } else if (input.includes('file') || input.includes('fopen') || input.includes('fprintf')) {
+                return cKnowledgeBase.fileHandling.content;
+            } else if (input.includes('practice') || input.includes('question') || input.includes('exercise')) {
+                return generatePracticeQuestions();
+            } else if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
+                return "Hello! I'm Minglez, your C Programming expert. I can help you with:\n\n• C syntax and rules\n• Data types and variables\n• Pointers and memory management\n• Functions and procedures\n• File handling operations\n• Practice questions and exercises\n\nWhat would you like to learn about today?";
+            } else if (input.includes('help')) {
+                return "I'm here to help you with C programming! Here are some topics I can assist you with:\n\n*📚 Topics I cover:\n• C Syntax Rules\n• Data Types in C\n• Pointers and Memory Management\n• Functions and Procedures\n• File Handling Operations\n• Arrays and Strings\n• Control Structures (if/else, loops)\n• Practice Questions\n\n💡 How to ask:*\n• \"Explain pointers in C\"\n• \"Show me data types\"\n• \"Give me practice questions\"\n• \"How to handle files in C?\"\n\nJust ask me anything about C programming!";
+            } else if (input.includes('array')) {
+                return "*Arrays in C\n\nArrays are collections of elements of the same data type stored in contiguous memory locations.\n\nDeclaration:*\n`````\n\n**Initialization:**\n````\n\n**Accessing Elements:**\n`````\n\n*Important Notes:*\n• Array indices start from 0\n• Array size must be known at compile time\n• No bounds checking - accessing out of bounds causes undefined behavior\n• Array name represents the address of the first element";
+            } else if (input.includes('loop') || input.includes('for') || input.includes('while')) {
+                return "*Loops in C\n\nLoops allow you to repeat a block of code multiple times.\n\n1. For Loop:*\n`````\n\n**2. While Loop:**\n````\n\n**3. Do-While Loop:**\n`````\n\n*Loop Control:*\n• break; - Exit the loop immediately\n• continue; - Skip current iteration, continue with next";
+            } else if (input.includes('printf') || input.includes('scanf') || input.includes('input') || input.includes('output')) {
+                return "*Input/Output in C\n\nOutput with printf():*\n`````\n\n**Input with scanf():**\n`````\n\n*Format Specifiers:*\n• %d - Integer\n• %f - Float\n• %lf - Double\n• %c - Character\n• %s - String\n• %p - Pointer address\n• %x - Hexadecimal\n\n*Important:* Always use & with scanf for variables (except for strings/arrays)!";
+            } else {
+                // Default response for unrecognized input
+                return I understand you're asking about "${userInput}". While I specialize in C programming topics, I'd be happy to help if you can be more specific!\n\n**Try asking about:**\n• "C syntax rules"\n• "Data types in C"\n• "How do pointers work?"\n• "Show me practice questions"\n• "File handling in C"\n• "Arrays and loops"\n• "printf and scanf functions"\n\nWhat specific C programming topic would you like to explore?;
+            }
+        }
+
+        // Generate practice questions
+        function generatePracticeQuestions() {
+            let response = "🎯 C Programming Practice Questions**\n\nHere are some practice questions to test your C programming skills:\n\n";
+            
+            practiceQuestions.forEach((q, index) => {
+                response += **${index + 1}. ${q.question}**\n\n;
+                response += <div class="practice-question">;
+                response += <div class="question-text">${q.question}</div>;
+                response += <button class="show-answer-btn" onclick="showAnswer(${index})">Show Answer</button>;
+                response += <div class="answer" id="answer-${index}"><pre><code>${q.answer}</code></pre></div>;
+                response += </div>\n\n;
+            });
+            
+            response += "Try solving these problems on your own first, then check the answers. Good luck! 💪";
+            
+            return response;
+        }
+
+        // Show answer for practice question
+        function showAnswer(index) {
+            const answer = document.getElementById(answer-${index});
+            const btn = answer.previousElementSibling;
+            
+            if (answer.style.display === 'none' || !answer.style.display) {
+                answer.style.display = 'block';
+                btn.textContent = 'Hide Answer';
+            } else {
+                answer.style.display = 'none';
+                btn.textContent = 'Show Answer';
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Global function to make it accessible from HTML
+        window.showAnswer = showAnswer;
+        window.deleteChat = deleteChat;
+    </script>
+</body>
+</html>
